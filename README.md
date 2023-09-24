@@ -1,5 +1,13 @@
 # md2gost
 
+---
+
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="https://github.com/benzlokzik-university/md2gost/assets/121052717/bcad5a93-dbfc-4158-806f-b296defb54e0" />
+ <source media="(prefers-color-scheme: light)" srcset="https://github.com/benzlokzik-university/md2gost/assets/121052717/7982d5ac-5030-43ab-aa54-89481b6e0b5c" />
+ <img alt="md2gost-logo" src="https://github.com/benzlokzik-university/md2gost/assets/121052717/7982d5ac-5030-43ab-aa54-89481b6e0b5c" />
+</picture>
+
 Скрипт для генерации docx отчета в соответствии с ГОСТ из markdown файла.
 
 ## Основные возможности
