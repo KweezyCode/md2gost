@@ -19,7 +19,7 @@ class NumberingPreProcessor:
                 continue
 
             if requires_numbering.numbering_unique_name in self._reference_data:
-                logging.warning(f"Дублирование названия подписи: {requires_numbering.numbering_unique_name}. Ссылки будут созданы некорректно")
+                logging.getLogger("md2gost").warning(f"Дублирование названия подписи: {requires_numbering.numbering_unique_name}. Ссылки будут созданы некорректно")
             self._reference_data[requires_numbering.numbering_unique_name] =\
                 self._categories[requires_numbering.numbering_category]
 
@@ -28,4 +28,4 @@ class NumberingPreProcessor:
                 if reference.unique_name in self._reference_data:
                     reference.set_number(self._reference_data[reference.unique_name])
                 else:
-                    logging.warning(f"Неверная ссылка: {reference.unique_name} не существует")
+                    logging.getLogger("md2gost").warning(f"Неверная ссылка: {reference.unique_name} не существует")

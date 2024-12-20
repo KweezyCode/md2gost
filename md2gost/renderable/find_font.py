@@ -14,7 +14,7 @@ def __find_font_linux(name: str, bold: bool, italic: bool):
             [line.split(":") for line in result.stdout.strip().split("\n")]
         fonts = [font for font in fonts if len(font) == 3]
     else:
-        logging.log(logging.ERROR, "fc-list not found")
+        logging.getLogger("md2gost").log(logging.ERROR, "fc-list not found")
         exit(1)
 
     for path, names, styles in fonts:

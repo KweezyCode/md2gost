@@ -19,7 +19,7 @@ from ..util import create_element
 
 
 class Image(Renderable, RequiresNumbering):
-    def __init__(self, parent: Parented, path: str, caption_info: CaptionInfo | None = None):
+    def __init__(self, parent: Parented, path: str, filebuffer: dict[str, BytesIO], caption_info: CaptionInfo | None = None):
         super().__init__("Рисунок", caption_info.unique_name if caption_info else None)
         self._parent = parent
         self._caption_info = caption_info
@@ -30,6 +30,7 @@ class Image(Renderable, RequiresNumbering):
         self._docx_paragraph.paragraph_format.line_spacing = 1
         self._docx_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         self._invalid = False
+        self._filebuffer = filebuffer
 
         run = self._docx_paragraph.add_run()
 
@@ -39,9 +40,11 @@ class Image(Renderable, RequiresNumbering):
             self._image = run.add_picture(bytesio)
         else:
             try:
-                self._image = run.add_picture(path)
+                if path not in self._filebuffer:
+                    raise FileNotFoundError
+                self._image = run.add_picture(self._filebuffer[path])
             except FileNotFoundError:
-                logging.warning(f"Путь {path} не существует, картинка не будет добавлена")
+                logging.getLogger("md2gost").warning(f"Путь {path} не существует, картинка не будет добавлена")
                 self._invalid = True
 
         self._number = None

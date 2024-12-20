@@ -23,19 +23,20 @@ BOTTOM_MARGIN = Cm(1.86)
 class Converter:
     """Converts markdown file to docx file"""
 
-    def __init__(self, input_paths: list[str], output_path: str,
+    def __init__(self, filebuffer: dict[str, BytesIO], input_paths: list[str], output_path: str,
                  template_path: str = None, title_path: str | None = None, title_pages: int = 1, debug: bool = False):
         self._output_path = output_path
-        self._title_document: Document = docx.Document(title_path)
-        self._title_pages = title_pages if title_path else 0
-        self._document: Document = docx.Document(template_path)
+        self._title_document: Document = docx.Document(filebuffer[title_path] if title_path else None)
+        # self._title_pages = title_pages if title_path else 0
+        self._title_pages = 1
+        self._document: Document = docx.Document(filebuffer[template_path] if template_path else os.path.join(os.path.dirname(__file__), "Template.docx"))
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
-        self._parser = Parser(self._document)
+        self._parser = Parser(self._document, filebuffer)
         for path in input_paths:
             try:
-                with open(path, encoding="utf-8") as f:
-                    text = f.read()
+                with filebuffer[path] as f:
+                    text = f.read().decode("utf-8")
             except FileNotFoundError:
                 print(f"Файл {path} не найден!")
                 exit(-3)

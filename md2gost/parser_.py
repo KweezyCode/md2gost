@@ -1,5 +1,6 @@
 import os
 from collections.abc import Generator
+from io import BytesIO
 
 from docx import Document
 from marko.block import BlankLine, Paragraph, CodeBlock, FencedCode, \
@@ -15,10 +16,10 @@ from .renderable_factory import RenderableFactory
 class Parser:
     """Parses given markdown string and returns Renderable elements"""
 
-    def __init__(self, document: Document):
+    def __init__(self, document: Document, filebuffer: dict[str, BytesIO]):
         self._document = document
         self._renderables = []
-        self._factory = RenderableFactory(self._document._body)
+        self._factory = RenderableFactory(self._document._body, filebuffer)
         self._caption_info: CaptionInfo | None = None
 
     @staticmethod
@@ -38,7 +39,7 @@ class Parser:
     def parse(self, text, relative_dir_path: str) -> None:
         marko_parsed = markdown.parse(text)
         for marko_element in marko_parsed.children:
-            self.resolve_paths(marko_element, relative_dir_path)
+            # self.resolve_paths(marko_element, relative_dir_path)
 
             if isinstance(marko_element, BlankLine):
                 continue

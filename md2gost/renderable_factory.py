@@ -3,7 +3,7 @@ import os
 from functools import singledispatchmethod
 from os import environ
 from typing import Generator
-
+from io import BytesIO
 from docx.shared import Parented, RGBColor
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
@@ -13,15 +13,16 @@ from . import extended_markdown
 
 
 class RenderableFactory:
-    def __init__(self, parent: Parented):
+    def __init__(self, parent: Parented, filebuffer: dict[str, BytesIO]):
         self._parent = parent
+        self._filebuffer = filebuffer
 
     @singledispatchmethod
     def create(self, marko_element: extended_markdown.BlockElement,
                caption_info: CaptionInfo) -> Generator[Renderable, None, None]:
         paragraph = Paragraph(self._parent)
         paragraph.add_run(f"{marko_element.get_type()} не поддерживается", color=RGBColor.from_string('ff0000'))
-        logging.warning(f"{marko_element.get_type()} не поддерживается")
+        logging.getLogger("md2gost").warning(f"{marko_element.get_type()} не поддерживается")
         yield paragraph
 
     @staticmethod
@@ -52,7 +53,7 @@ class RenderableFactory:
             else:
                 paragraph_or_link.add_run(f" {child.get_type()} не поддерживается ",
                                           color=RGBColor.from_string("FF0000"))
-                logging.warning(f"{child.get_type()} не поддерживается")
+                logging.getLogger("md2gost").warning(f"{child.get_type()} не поддерживается")
 
     @create.register
     def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
@@ -61,7 +62,7 @@ class RenderableFactory:
         all_images = True
         for child in marko_paragraph.children:
             if isinstance(child, extended_markdown.Image):
-                yield Image(self._parent, child.dest, CaptionInfo(child.unique_name, child.title))
+                yield Image(self._parent, child.dest, self._filebuffer, CaptionInfo(child.unique_name, child.title))
             else:
                 all_images = False
 
@@ -84,10 +85,12 @@ class RenderableFactory:
         text = marko_code_block.children[0].children
         if marko_code_block.extra:
             try:
-                with open(marko_code_block.extra, encoding="utf-8") as f:
-                    text = f.read() + text
+                if marko_code_block.extra not in self._filebuffer:
+                    raise FileNotFoundError
+                with self._filebuffer[marko_code_block.extra] as f:
+                    text = f.read().decode("utf-8") + text
             except FileNotFoundError:
-                logging.warning(f"Файл с кодом не найден: {marko_code_block.extra}")
+                logging.getLogger("md2gost").warning(f"Файл с кодом не найден: {marko_code_block.extra}")
 
         listing.set_text(text)
         yield listing

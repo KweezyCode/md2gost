@@ -212,12 +212,12 @@ class Debugger:
     def after_rendered(self):
         """Must be called after rendering is finished"""
         if not self._document.paragraphs:
-            logging.debug("No paragraphs found, can't add debug info")
+            logging.getLogger("md2gost").debug("No paragraphs found, can't add debug info")
             return
 
         for i in range(len(self._pages)):
             if self._paragraphs_by_page[i] is None:
-                logging.debug(f"Skipping page {i} as there are no paragraphs")
+                logging.getLogger("md2gost").debug(f"Skipping page {i} as there are no paragraphs")
                 continue
             add_float_picture(
                 self._paragraphs_by_page[i],

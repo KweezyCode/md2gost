@@ -84,7 +84,7 @@ class Listing(Renderable, RequiresNumbering):
                 highlight(text, get_lexer_by_name(self._language), formatter)
                 return
             except ClassNotFound:
-                logging.warning(f"Язык {self._language} не поддерживается, синтаксис не будет подсвечен")
+                logging.getLogger("md2gost").warning(f"Язык {self._language} не поддерживается, синтаксис не будет подсвечен")
 
         for line in text.removesuffix("\n").split("\n"):
             paragraph = create_paragraph()
