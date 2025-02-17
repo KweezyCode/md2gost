@@ -1,5 +1,6 @@
 import re
 from re import Match
+import logging
 
 from marko.block import BlockElement
 from marko.source import Source
@@ -20,6 +21,9 @@ class Heading(BlockElement):
     def __init__(self, match: Match[str]) -> None:
         self.level = len(match.group(1))
         inline_body = match.group(2).strip()
+        if not inline_body:
+            logging.getLogger("md2gost").warning(f"Пустой заголовок")
+            inline_body = "Пустой заголовок"
         self.numbered = not (inline_body[0] == "*")
         if not self.numbered:
             inline_body = inline_body[1:]
